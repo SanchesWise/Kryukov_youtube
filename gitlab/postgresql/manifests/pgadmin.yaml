@@ -46,6 +46,8 @@ spec:
       labels:
         app: pgadmin
     spec:
+      securityContext:
+        fsGroup: 5050 
       initContainers:
       - name: busibox
         image: busybox:1.34.1
@@ -53,7 +55,7 @@ spec:
         command:
           - 'sh'
           - '-c'
-          - 'chown 5050:5050 /tmp/mount'
+          - 'chmod 755 /tmp/mount'
         volumeMounts:
           - mountPath: /tmp/mount
             name: state
