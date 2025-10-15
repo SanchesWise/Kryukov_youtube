@@ -61,6 +61,15 @@ spec:
       terminationGracePeriodSeconds: 30
       securityContext:
         fsGroup: 999
+      initContainers:
+        - name: fix-postgres-permissions
+          image: busybox:1.34.1
+          command: ['sh', '-c', 'chown 999:999 /var/lib/postgresql/data']
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresdata
       containers:
         - name: postgres
           image: postgres:15.3
