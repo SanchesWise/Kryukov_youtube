@@ -60,7 +60,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
-        fsGroup: 5050
+        fsGroup: 999
       containers:
         - name: postgres
           image: postgres:15.3
