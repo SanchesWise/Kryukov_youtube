@@ -69,7 +69,7 @@ spec:
             protocol: TCP
         env:
           - name: PGADMIN_DEFAULT_EMAIL
-            value: "artur@kryukov.biz"
+            value: "sanches@ccsfarm.local"
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "password"
         resources:
@@ -94,7 +94,7 @@ metadata:
 spec:
   ingressClassName: system-ingress
   rules:
-    - host: pg.kryukov.local
+    - host: pg.ccsfgarm.local
       http:
         paths:
           - pathType: Prefix
