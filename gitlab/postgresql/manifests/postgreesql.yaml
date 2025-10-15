@@ -36,7 +36,7 @@ metadata:
   name: postgres-secret
 type: Opaque
 stringData:
-  POSTGRES_USER: artur
+  POSTGRES_USER: sanches
   POSTGRES_PASSWORD: password
 --- 
 apiVersion: apps/v1
@@ -59,6 +59,8 @@ spec:
         version: "15.3"
     spec:
       terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 5050
       containers:
         - name: postgres
           image: postgres:15.3
