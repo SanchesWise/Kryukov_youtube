@@ -51,7 +51,6 @@ spec:
   serviceName: postgres-headless
   replicas: 1 
   minReadySeconds: 10 
-  
   template:
     metadata:
       labels:
@@ -60,19 +59,8 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       securityContext:
-        fsGroup: 999
-      initContainers:
-        - name: busybox-fix-postgres-permissions
-          image: busybox:1.34.1
-          command: 
-            - 'sh'
-            - '-c'
-            - 'chmod 755 /var/lib/postgresql/data'
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgresdata
+        runAsUser: 65534
+        runAsNonRoot: true
       containers:
         - name: postgres
           image: postgres:15.3
