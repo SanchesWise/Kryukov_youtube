@@ -46,12 +46,12 @@ spec:
       labels:
         app: pgadmin
     spec:
-      securityContext:
-        fsGroup: 5050 
       initContainers:
       - name: busibox
         image: busybox:1.34.1
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 0       
         command:
           - 'sh'
           - '-c'
