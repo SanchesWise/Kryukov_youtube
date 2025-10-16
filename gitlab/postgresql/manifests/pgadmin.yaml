@@ -55,14 +55,17 @@ spec:
         command:
           - 'sh'
           - '-c'
-          - 'chmod 755 /tmp/mount'
+          - 'chown -R 5050:5050 /var/lib/pgadmin && chmod -R 755 /var/lib/pgadmin'
         volumeMounts:
-          - mountPath: /tmp/mount
+          - mountPath: /var/lib/pgadmin
             name: state
       containers:
       - name: pgadmin
         image: dpage/pgadmin4:8.2
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 5050  
+          runAsGroup: 5050  
         ports:
           - containerPort: 80
             name: http
@@ -94,7 +97,7 @@ metadata:
 spec:
   ingressClassName: system-ingress
   rules:
-    - host: pg.ccsfgarm.local
+    - host: pg.ccsfarm.local
       http:
         paths:
           - pathType: Prefix
