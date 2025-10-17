@@ -72,7 +72,7 @@ spec:
             protocol: TCP
         env:
           - name: PGADMIN_DEFAULT_EMAIL
-            value: "sanches@ccsfarm.local"
+            value: "sanches@yandex.ru"
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "password"
         resources:
