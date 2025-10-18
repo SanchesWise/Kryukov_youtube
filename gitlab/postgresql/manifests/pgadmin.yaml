@@ -67,9 +67,9 @@ spec:
             protocol: TCP
         env:
           - name: PGADMIN_DEFAULT_EMAIL
-            value: "u11182s@yandex.ru"
+            value: "admin@email.com"
           - name: PGADMIN_DEFAULT_PASSWORD
-            value: "password"
+            value: "admin"
         resources:
           requests:
             memory: "100Mi"
