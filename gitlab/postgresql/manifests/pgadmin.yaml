@@ -75,6 +75,12 @@ spec:
             value: "sanches@yandex.ru"
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "password"
+          - name: PGADMIN_CONFIG_SERVER_MODE
+            value: "True"
+          - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
+            value: "False" 
+          - name: PGADMIN_CONFIG_LOG_LEVEL
+            value: "DEBUG"
         resources:
           requests:
             memory: "100Mi"
@@ -94,6 +100,22 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pgadmin
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Script-Name /;
+      proxy_set_header X-Scheme $scheme;
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers: "4 256k"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "256k"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: |
+      X-Forwarded-Proto: https
+      X-Forwarded-Host: $host
+      X-Forwarded-Port: "443"  
 spec:
   ingressClassName: nginx
   rules:
