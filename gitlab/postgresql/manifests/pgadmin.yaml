@@ -79,8 +79,6 @@ spec:
             value: "True"
           - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
             value: "False" 
-          - name: PGADMIN_CONFIG_LOG_LEVEL
-            value: "INFO"
         resources:
           requests:
             memory: "100Mi"
