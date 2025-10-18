@@ -160,7 +160,7 @@ spec:
             name: state
       containers:
       - name: pgadmin
-        image: dpage/pgadmin4:9.8.0
+        image: dpage/pgadmin4:8.2
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 5050  
@@ -174,13 +174,6 @@ spec:
             value: "sanches@yandex.ru"
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "password"
-          - name: PGADMIN_CONFIG_SERVER_MODE
-            value: "True"
-          - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
-            value: "False"
-          # Дополнительные настройки для работы за прокси
-          - name: PGADMIN_CONFIG_APPLICATION_ROOT
-            value: "/"
         resources:
           requests:
             memory: "100Mi"
