@@ -13,7 +13,6 @@ spec:
     requests:
       storage: 500Mi
 ---
-# Оригинальный сервис для pgAdmin (оставляем для внутреннего использования)
 kind: Service
 apiVersion: v1
 metadata:
@@ -26,109 +25,11 @@ spec:
       port: 80
       name: http
       targetPort: 80
+      nodePort: 30861
   selector:
     app: pgadmin
-  type: ClusterIP  # Меняем на ClusterIP для внутреннего использования
+  type: NodePort
 ---
-# Конфигурация для Nginx прокси
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pgadmin-nginx-config
-  namespace: gitlab
-data:
-  nginx.conf: |
-    server {
-        listen 80;
-        server_name _;
-        
-        # Основные настройки proxy
-        proxy_connect_timeout 300;
-        proxy_send_timeout 300;
-        proxy_read_timeout 300;
-        proxy_buffer_size 128k;
-        proxy_buffers 4 256k;
-        proxy_busy_buffers_size 256k;
-        client_body_buffer_size 128k;
-        proxy_http_version 1.1;
-        
-        location / {
-            proxy_pass http://pgadmin-svc:80;
-            
-            # Критически важные заголовки для pgAdmin
-            proxy_set_header X-Script-Name /;
-            proxy_set_header X-Scheme $scheme;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header X-Forwarded-Host $host;
-            proxy_set_header X-Forwarded-Port $server_port;
-            
-            # Отключаем перенаправления, чтобы браузер видел оригинальные URL
-            proxy_redirect off;
-        }
-    }
----
-# Прокси-контейнер для pgAdmin
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: pgadmin-proxy
-  namespace: gitlab
-  labels:
-    app: pgadmin-proxy
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pgadmin-proxy
-  template:
-    metadata:
-      labels:
-        app: pgadmin-proxy
-    spec:
-      containers:
-      - name: nginx-proxy
-        image: nginx:1.25-alpine
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-          name: http
-          protocol: TCP
-        volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/conf.d/default.conf
-          subPath: nginx.conf
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "0.1"
-          limits:
-            memory: "128Mi"
-            cpu: "0.2"
-      volumes:
-      - name: nginx-config
-        configMap:
-          name: pgadmin-nginx-config
----
-# Сервис для прокси (будет использоваться Ingress'ом)
-apiVersion: v1
-kind: Service
-metadata:
-  name: pgadmin-proxy-svc
-  namespace: gitlab
-spec:
-  ports:
-    - protocol: TCP
-      port: 80
-      name: http
-      targetPort: 80
-  selector:
-    app: pgadmin-proxy
-  type: ClusterIP
----
-# Оригинальный pgAdmin deployment (оставляем как есть)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -149,29 +50,24 @@ spec:
       - name: busibox
         image: busybox:1.34.1
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 0     
         command:
           - 'sh'
           - '-c'
-          - 'chown -R 5050:5050 /var/lib/pgadmin && chmod -R 755 /var/lib/pgadmin'
+          - 'chown 5050:5050 /tmp/mount'
         volumeMounts:
-          - mountPath: /var/lib/pgadmin
+          - mountPath: /tmp/mount
             name: state
       containers:
       - name: pgadmin
         image: dpage/pgadmin4:8.2
         imagePullPolicy: IfNotPresent
-        securityContext:
-          runAsUser: 5050  
-          runAsGroup: 5050  
         ports:
           - containerPort: 80
             name: http
             protocol: TCP
         env:
           - name: PGADMIN_DEFAULT_EMAIL
-            value: "sanches@yandex.ru"
+            value: "u11182s@yandex.ru"
           - name: PGADMIN_DEFAULT_PASSWORD
             value: "password"
         resources:
@@ -189,17 +85,10 @@ spec:
           persistentVolumeClaim:
             claimName: pgadmin-pvc
 ---
-# Ingress теперь указывает на прокси-сервис
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pgadmin
-  namespace: gitlab
-  annotations:
-    # Минимальные аннотации, которые разрешены
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 spec:
   ingressClassName: nginx
   rules:
@@ -210,6 +99,6 @@ spec:
             path: /
             backend:
               service:
-                name: pgadmin-proxy-svc  # Указываем на прокси-сервис
+                name: pgadmin-svc
                 port:
                   name: http
