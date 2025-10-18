@@ -80,7 +80,7 @@ spec:
           - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
             value: "False" 
           - name: PGADMIN_CONFIG_LOG_LEVEL
-            value: "DEBUG"
+            value: "INFO"
         resources:
           requests:
             memory: "100Mi"
