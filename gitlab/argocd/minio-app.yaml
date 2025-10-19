@@ -19,7 +19,7 @@ spec:
         - name: consoleIngress.ingressClassName
           value: nginx
         - name: consoleService.type
-          value: nodePort
+          value: NodePort
         - name: image.tag
           value: RELEASE.2023-11-01T01-57-10Z-cpuv1
         - name: replicas
