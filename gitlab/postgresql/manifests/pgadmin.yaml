@@ -13,6 +13,14 @@ spec:
     requests:
       storage: 500Mi
 ---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: pgadmin
+data:
+  pgadmin-password: cGFzc3dvcmQ=
+---
 kind: Service
 apiVersion: v1
 metadata:
@@ -69,7 +77,10 @@ spec:
           - name: PGADMIN_DEFAULT_EMAIL
             value: "admin@email.com"
           - name: PGADMIN_DEFAULT_PASSWORD
-            value: "password"
+            valueFrom:
+              secretKeyRef:
+                name: pgadmin
+                key: pgadmin-password
         resources:
           requests:
             memory: "100Mi"
