@@ -3,42 +3,40 @@ kind: Application
 metadata:
   name: gitlab-minio
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
+  destination:
+    namespace: gitlab
+    server: https://kubernetes.default.svc
   project: default
   source:
-    repoURL: 'https://charts.bitnami.com/bitnami'
+    repoURL: 'https://charts.min.io/' # Официальный репозиторий MinIO
     chart: minio
-    targetRevision: 17.0.21
+    targetRevision: 5.4.0 # Актуальная версия на момент ответа; проверьте последнюю
     helm:
-      parameters:
-        - name: mode
-          value: distributed
-        - name: auth.rootUser
-          value: admin
-        - name: auth.rootPassword
-          value: password
-        - name: disableWebUI
-          value: "true"
-        - name: statefulset.replicaCount
-          value: "2"
-        - name: statefulset.zones
-          value: "1"
-        - name: statefulset.drivesPerNode
-          value: "2"
-        - name: persistence.enabled
-          value: "true"
-        - name: persistence.storageClass
-          value: managed-nfs-storage
-        - name: persistence.size
-          value: 2Gi
-        - name: volumePermissions.enabled
-          value: "true"
-
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: gitlab
+      # Используем values вместо parameters для сложных конфигураций
+      values: |
+        mode: distributed
+        rootUser: admin
+        rootPassword: password
+        persistence:
+          enabled: true
+          storageClass: "managed-nfs-storage"
+          size: 2Gi
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          fsGroup: 1000
+        # Критически важно для работы консоли и API
+        service:
+          type: ClusterIP
+          port: 9000
+        consoleService:
+          type: ClusterIP
+          port: 9001
   syncPolicy:
     automated:
       prune: true
