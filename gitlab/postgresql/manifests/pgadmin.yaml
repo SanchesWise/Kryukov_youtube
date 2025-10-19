@@ -74,6 +74,12 @@ spec:
             name: http
             protocol: TCP
         env:
+          - name: PGADMIN_CONFIG_SERVER_MODE
+            value: "True"
+          - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
+            value: "False"
+          - name: PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED
+            value: "False" 
           - name: PGADMIN_DEFAULT_EMAIL
             value: "admin@email.com"
           - name: PGADMIN_DEFAULT_PASSWORD
